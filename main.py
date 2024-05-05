@@ -11,6 +11,23 @@ import sys
 #! Important information that is needed (such as debug info)    !#
 
 
+#TODO Create classes for each file type (kinda) TODO#
+class Folder:
+    def __init__(self) -> None:
+        pass
+        #TODO Do stuff here
+    
+    def __str__(self) -> str:
+        return "f\" folder icon {name}"
+
+class File:
+    def __init__(self) -> None:
+        pass
+        #TODO Do stuff here
+        #TODO with extension and name stored seperate
+    def __str__(self) -> str:
+        return "f\" file icon <from extension> {name}"
+
 GLOBAL_FILE_ICONS = {
     "default": "ea7b",
     "folder": "ea83"
@@ -62,7 +79,6 @@ class Explorer:
 
             file_type = file_name_split[-1]
 
-
             file_icon = self.file_icons[
                 "folder" if os.path.isdir(file_path)
                 else file_type
@@ -71,18 +87,30 @@ class Explorer:
             ]
             file_icon = chr(int(file_icon, 16))
 
-            to_return.append(f"{file_icon} {file_name}")
+            to_return.append(f"{"#" if os.path.isdir(file_path) else ""}{file_icon} {file_name}")
         
         return to_return
 
-    def loop(self) -> None:
+    def create_tree(self, dir: str, name: str, expand_layer: int=1) -> Tree:
+        if expand_layer <= 0:
+            return Tree("me!!!!")
+        expand_layer -= 1
+        
+        to_return = Tree(dir)
+
+        for file in self.list_dir(dir):
+            if file.startswith("#"): #? is a folder
+                child = to_return.add(self.create_tree(os.path.normpath(f"{dir}/{file.split(" ")[-1]}"), file))
+            child = to_return.add(file)
+
+        return to_return
+
+    def loop(self, expand_layer: int=0) -> None:
         if not self.initialised:
             self.error("Explorer is not initialised", end_program=True)
             return
         
-        file_tree = Tree(os.path.normpath(f"{os.getcwd()}/{self.current_directory}"))
-        for file_display in self.list_dir(self.current_directory):
-            file_tree.add(file_display)
+        file_tree = self.create_tree(os.path.normpath(f"{os.getcwd()}/{self.current_directory}"), f"{self.current_directory}", 4)
         self.console.print(file_tree)
 
 def test():
