@@ -15,7 +15,6 @@ GLOBAL_FILE_ICONS = {
     "default": "ea7b",
     "folder": "ea83"
 }
-GLOBAL_FILE_ICONS_KEYS = list(GLOBAL_FILE_ICONS.keys())
 
 class Explorer:
     def error(self, message: str | List[str], start: str="Err:", end_program: bool=False) -> None:
@@ -41,18 +40,16 @@ class Explorer:
 
         self.file_icons = GLOBAL_FILE_ICONS.copy()
         for file_path in extra_icons:
-            self.console.print(f"Loading [magenta bold]{file_path}[/magenta bold]")
+            # self.console.print(f"Loading [magenta bold]{file_path}[/magenta bold]") #! DEBUG
 
             if not os.path.exists(file_path):
                 self.error(f"[bright_cyan]Path {file_path} is not a valid icon path[/bright_cyan]")
                 continue
 
             data = json.load(open(file_path))
-            self.console.print(f"Data read")
 
             self.file_icons = self.file_icons | data
             self.file_icon_keys = list(self.file_icons.keys())
-            self.console.print(self.file_icons)
             self.initialised = True
     
 
@@ -64,10 +61,8 @@ class Explorer:
             file_name_split = file_name.split(".")
 
             file_type = file_name_split[-1]
-            # if os.path.isdir(file_path):
-            #     file_icon = self.file_icons["folder"]
-            # else:
-            #     if file_type in self.file_icon_keys
+
+
             file_icon = self.file_icons[
                 "folder" if os.path.isdir(file_path)
                 else file_type
@@ -91,7 +86,7 @@ class Explorer:
         self.console.print(file_tree)
 
 def test():
-    explorer = Explorer(default_dir="./test-files", extra_icons=["./icons.json", "a"])
+    explorer = Explorer(default_dir="./test-files", extra_icons=["./icons.json"])
 
     explorer.loop()
 
