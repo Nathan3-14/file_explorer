@@ -12,17 +12,28 @@ import sys
 
 
 GLOBAL_FILE_ICONS = {
-            "py": "python",
-            "txt": "text",
-            "png": "image",
-            "jpg": "image",
-            "jpeg": "image",
-            "folder": "folder",
-            "default": "default"
+    "default": "ea7b",
+    "folder": "ea83"
 }
 GLOBAL_FILE_ICONS_KEYS = list(GLOBAL_FILE_ICONS.keys())
 
 class Explorer:
+    def error(self, message: str | List[str], start: str="Err:", end_program: bool=False) -> None:
+        message_altered = ""
+        if isinstance(message, List):
+            #* Create multiline error messages *#
+            for index, line in enumerate(message):
+                message_altered += f"{f"  {start}:" if index == 0 else "      "}{line}\n"
+            message_altered = message_altered.strip()
+        else:
+            #* Create single line error messages *#
+            message_altered = f"  {start} {message}"
+        
+        self.console.print(message_altered)
+        if end_program:
+            quit()
+
+        
     def __init__(self, default_dir: str="~/", extra_icons: List[str]=[]) -> None:
         self.initialised = False
         self.current_directory = default_dir
@@ -33,45 +44,37 @@ class Explorer:
             self.console.print(f"Loading [magenta bold]{file_path}[/magenta bold]")
 
             if not os.path.exists(file_path):
-                self.console.print(f"  [red]Err:[/red] [bright_cyan]Path {file_path} is not a valid icon path[/bright_cyan]")
-                return
+                self.error(f"[bright_cyan]Path {file_path} is not a valid icon path[/bright_cyan]")
+                continue
 
             data = json.load(open(file_path))
             self.console.print(f"Data read")
 
             self.file_icons = self.file_icons | data
+            self.file_icon_keys = list(self.file_icons.keys())
+            self.console.print(self.file_icons)
             self.initialised = True
     
-    def error(self, message: str | List[str], start: str="Err:", end_program: bool=False) -> None:
-        message_altered = ""
-        if isinstance(message, List):
-            #* Create multiline error messages *#
-            for index, line in enumerate(message):
-                message_altered += f"{"  Err:" if index == 0 else "      "}{line}\n"
-            message_altered = message_altered.strip()
-        else:
-            #* Create single line error messages *#
-            message_altered = f"  {start} {message}"
-        
-        self.console.print(message_altered)
-        if end_program:
-            quit()
 
     def list_dir(self, dir: str) -> List[str]:
         to_return = []
         
         for file_name in os.listdir(dir):
             file_path = f"{self.current_directory}/{file_name}"
-            print(f"{os.path.isdir(file_path)}")
             file_name_split = file_name.split(".")
 
             file_type = file_name_split[-1]
-            file_icon = GLOBAL_FILE_ICONS[
-                "folder" if os.path.isdir(file_name)
+            # if os.path.isdir(file_path):
+            #     file_icon = self.file_icons["folder"]
+            # else:
+            #     if file_type in self.file_icon_keys
+            file_icon = self.file_icons[
+                "folder" if os.path.isdir(file_path)
                 else file_type
-                    if file_type in GLOBAL_FILE_ICONS_KEYS
+                    if file_type in self.file_icon_keys
                     else "default"
             ]
+            file_icon = chr(int(file_icon, 16))
 
             to_return.append(f"{file_icon} {file_name}")
         
