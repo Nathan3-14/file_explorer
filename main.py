@@ -101,29 +101,6 @@ class Explorer:
             self.file_icon_keys = list(self.file_icons.keys())
             self.initialised = True
     
-
-    def list_dir(self, dir: str) -> List[str]:
-        to_return = []
-        
-        for file_name in os.listdir(dir):
-            file_path = f"{self.current_directory}/{file_name}"
-            file_name_split = file_name.split(".")
-
-            file_type = file_name_split[-1]
-
-            file_icon = self.file_icons[
-                "folder" if os.path.isdir(file_path)
-                else file_type
-                    if file_type in self.file_icon_keys
-                    else "default"
-            ]
-            file_icon = chr(int(file_icon, 16))
-
-            to_return.append(f"{file_icon} {file_name}")
-        
-        return to_return
-
-
     def loop(self, recursion: int=1) -> None:
         if not self.initialised:
             self.error("Explorer is not initialised", end_program=True)
@@ -136,7 +113,6 @@ def test():
     explorer = Explorer(default_dir="./test-files", extra_icons=["./icons.json"])
 
     explorer.loop()
-    explorer.loop(recursion=99)
 
 if __name__ == "__main__":
     test()
