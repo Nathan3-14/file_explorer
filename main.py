@@ -22,7 +22,7 @@ class Folder:
         self.folder_dir = folder_dir
         self.folder_name = folder_dir.split("/")[-1]
     
-    def tree(self, recursion: int=1) -> Tree:
+    def tree(self, recursion: int=1, expanded_paths: List[str]=[]) -> Tree:
         to_return = Tree(str(self))
 
         if recursion <= 0:
