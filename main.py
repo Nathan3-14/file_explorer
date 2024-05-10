@@ -22,43 +22,55 @@ class Folder:
         self.folder_dir = folder_dir
         self.folder_name = folder_dir.split("/")[-1]
     
-    def tree(self, recursion: int=1, expanded_paths: List[str]=[]) -> Tree:
-        to_return = Tree(str(self))
+    def tree(self, level: int, open_paths: List[str]=[]) -> Tree:
+        to_return = Tree(self.to_string(level))
 
-        if recursion <= 0:
+        if os.path.normpath(self.folder_dir) not in open_paths and ":all:" not in open_paths:
             return to_return
-        recursion -= 1
 
         for child in os.listdir(self.folder_dir):
             if os.path.isdir(os.path.normpath(f"{self.folder_dir}/{child}")):
-                child_tree = Folder(self.explorer, os.path.normpath(f"{self.folder_dir}/{child}")).tree(recursion)
+                child_tree = Folder(self.explorer, os.path.normpath(f"{self.folder_dir}/{child}")).tree(level+1, open_paths=open_paths)
             else:
-                child_tree = File(self.explorer, child, self.folder_dir).tree()
+                child_tree = File(self.explorer, child, self.folder_dir).tree(level)
             to_return.add(child_tree)
 
         return to_return
 
+    def to_string(self, level: int=-1) -> str:
+        colour = self.explorer.colours[level if level < len(self.explorer.colours) else -1]
+        return f"[{colour}]{icon(self.icon)}  {self.folder_name}[/{colour}]"
+
+
     def __str__(self) -> str:
-        return f"{icon(self.icon)} {self.folder_name}"
+        return self.to_string()
 
 class File:
     def __init__(self, explorer: "Explorer", file_name: str, root_dir: str) -> None:
-        self.icons = explorer.file_icons
+        self.explorer = explorer
+        self.icons = self.explorer.file_icons
         self.file_path = os.path.normpath(f"{root_dir}/{file_name}")
         self.file_name = file_name
         self.file_type = file_name.split(".")[-1]
 
-    def tree(self) -> Tree:
-        to_return = Tree(str(self))
+    def tree(self, level: int) -> Tree:
+        to_return = Tree(self.to_string(level))
 
         return to_return
 
-    def __str__(self) -> str:
+    def to_string(self, level: int=-1) -> str:
         icon_keys = list(self.icons.keys())
         icon_key = self.file_type if self.file_type in icon_keys else "default"
         icon_code = self.icons[icon_key]
         icon_character = icon(icon_code)
-        return f"{icon_character} {self.file_name}"
+
+        colour = self.explorer.colours[level if level < len(self.explorer.colours) else -1]
+
+        return f"[{colour}]{icon_character} {self.file_name}[/{colour}]"
+
+
+    def __str__(self) -> str:
+        return self.to_string()
 
 GLOBAL_FILE_ICONS = {
     "default": "ea7b",
@@ -82,10 +94,11 @@ class Explorer:
             quit()
 
         
-    def __init__(self, default_dir: str="~/", extra_icons: List[str]=[]) -> None:
+    def __init__(self, default_dir: str="~/", extra_icons: List[str]=[], colours: List[str]=["white"]) -> None:
         self.initialised = False
         self.current_directory = default_dir
         self.console = Console(record=True)
+        self.colours = colours
 
         self.file_icons = GLOBAL_FILE_ICONS.copy()
         for file_path in extra_icons:
@@ -101,18 +114,24 @@ class Explorer:
             self.file_icon_keys = list(self.file_icons.keys())
             self.initialised = True
     
-    def loop(self, recursion: int=1) -> None:
+    def loop(self, open_paths: List[str]=[]) -> None:
         if not self.initialised:
             self.error("Explorer is not initialised", end_program=True)
             return
         
-        file_tree = Folder(self, self.current_directory).tree(recursion)
+        file_tree = Folder(self, self.current_directory).tree(0, open_paths=open_paths)
         self.console.print(file_tree)
 
 def test():
-    explorer = Explorer(default_dir="./test-files", extra_icons=["./icons.json"])
+    explorer = Explorer(default_dir="./test-files", extra_icons=["./icons.json"], colours=["bright_cyan", "bright_green", "red", "gold1"])
 
-    explorer.loop()
+    open_paths = ["./test-files", "./test-files/files", "./test-files/js", ":all:"]
+    open_paths = [os.path.normpath(f"{path}") for path in open_paths] #! May need to add cwd if change in how folders work
+
+    explorer.loop(open_paths=open_paths)
 
 if __name__ == "__main__":
     test()
+
+#TODO Change folder paths to be global not local TODO# 
+
