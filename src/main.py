@@ -102,8 +102,6 @@ class Explorer:
 
         self.file_icons = GLOBAL_FILE_ICONS.copy()
         for file_path in extra_icons:
-            # self.console.print(f"Loading [magenta bold]{file_path}[/magenta bold]") #! DEBUG
-
             if not os.path.exists(file_path):
                 self.error(f"[bright_cyan]Path {file_path} is not a valid icon path[/bright_cyan]")
                 continue
@@ -122,16 +120,9 @@ class Explorer:
         file_tree = Folder(self, self.current_directory).tree(0, open_paths=open_paths)
         self.console.print(file_tree)
 
-def test():
-    explorer = Explorer(default_dir="./test-files", extra_icons=["./icons/icons.json"], colours=["bright_cyan", "bright_green", "red", "gold1"])
+def get_open_path_list(open_paths: List[str]) -> List[str]:
+    return [os.path.normpath(f"{path}") for path in open_paths] #! May need to add cwd if change in how folders work
 
-    open_paths = ["./test-files", "./test-files/files", "./test-files/js", ":all:"]
-    open_paths = [os.path.normpath(f"{path}") for path in open_paths] #! May need to add cwd if change in how folders work
-
-    explorer.loop(open_paths=open_paths)
-
-if __name__ == "__main__":
-    test()
 
 #TODO Change folder paths to be global not local TODO# 
 
