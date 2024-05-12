@@ -123,7 +123,7 @@ class Explorer:
         self.console.print(file_tree)
 
 def test():
-    explorer = Explorer(default_dir="./test-files", extra_icons=["./icons.json"], colours=["bright_cyan", "bright_green", "red", "gold1"])
+    explorer = Explorer(default_dir="./test-files", extra_icons=["./icons/icons.json"], colours=["bright_cyan", "bright_green", "red", "gold1"])
 
     open_paths = ["./test-files", "./test-files/files", "./test-files/js", ":all:"]
     open_paths = [os.path.normpath(f"{path}") for path in open_paths] #! May need to add cwd if change in how folders work
