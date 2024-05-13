@@ -39,7 +39,7 @@ class Folder:
 
     def to_string(self, level: int=-1) -> str:
         colour = self.explorer.colours[level if level < len(self.explorer.colours) else -1]
-        return f"[{colour}]{icon(self.icon)}  {self.folder_name}[/{colour}]"
+        return f"[{colour}]{icon(self.icon)} {self.folder_name}[/{colour}]"
 
 
     def __str__(self) -> str:
@@ -94,14 +94,14 @@ class Explorer:
             quit()
 
         
-    def __init__(self, default_dir: str="~/", extra_icons: List[str]=[], colours: List[str]=["white"]) -> None:
+    def __init__(self, default_dir: str="~/", extra_icon_paths: List[str]=[], colours: List[str]=["white"]) -> None:
         self.initialised = False
         self.current_directory = default_dir
         self.console = Console(record=True)
         self.colours = colours
 
         self.file_icons = GLOBAL_FILE_ICONS.copy()
-        for file_path in extra_icons:
+        for file_path in extra_icon_paths:
             if not os.path.exists(file_path):
                 self.error(f"[bright_cyan]Path {file_path} is not a valid icon path[/bright_cyan]")
                 continue
@@ -124,5 +124,5 @@ def get_open_path_list(open_paths: List[str]) -> List[str]:
     return [os.path.normpath(f"{path}") for path in open_paths] #! May need to add cwd if change in how folders work
 
 
-#TODO Change folder paths to be global not local TODO# 
+#TODO  Change folder paths to be global not local  TODO# 
 

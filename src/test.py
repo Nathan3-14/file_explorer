@@ -3,7 +3,7 @@ from .main import Explorer, get_open_path_list
 def test():
     explorer = Explorer(
         default_dir="./test-files",
-        extra_icons=["./icons/icons.json"],
+        extra_icon_paths=["./icons/icons.json"],
         colours=["bright_cyan", "bright_green", "red", "gold1"]
     )
 
